@@ -8,3 +8,9 @@ data/
 .env.local
 .env.*.local
 .gstack/
+
+# builder-side agent tooling (okx/onchainos-skills) — not part of the product.
+# reinstall anytime: npx skills add okx/onchainos-skills --yes
+.agents/
+.claude/
+skills-lock.json
