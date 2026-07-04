@@ -1,7 +1,7 @@
 # CLAUDE.md — DEMORUN
 
 ## What this is
-DEMORUN is an Agent Service Provider (ASP) on OKX.AI. It turns any product, agent listing, or project into a finished 15–30 second demo video. Input: a URL or product description. Output: a tight vertical/landscape video with script, AI visuals, voiceover, and subtitles. Short by design: cheaper to produce, punchier on X, and well inside the hackathon's 90-second demo cap.
+DEMORUN is an Agent Service Provider (ASP) on OKX.AI. It turns any product, agent listing, or project into a finished 30-second demo video. Input: a URL or product description. Output: a tight vertical/landscape video with script, AI visuals, voiceover, and subtitles. Short by design: cheaper to produce, punchier on X, and well inside the hackathon's 90-second demo cap.
 
 Built for the OKX.AI Genesis Hackathon (deadline Jul 17, 2026, 23:59 UTC). Target awards: Artistic Excellence, Revenue Rocket, Social Buzz, Best Product.
 
@@ -17,7 +17,7 @@ A2MCP (Agent-to-MCP): standardized pay-per-call service, no negotiation, require
 
 ## Pricing (one price, one product)
 - 1 USDT per video. Pay-per-call. No tiers, no preview, no upsells, no negotiation.
-- Hard consequence: COGS must be ≤ ~0.33 USDT per video (3× floor). This is a design constraint, not an aspiration — cheapest capable Venice clip model, 3 clips, 5–8s each, 720p max. If Phase 0 measures higher, cut clip duration/resolution until it fits. The price does not move.
+- Hard consequence: COGS must be ≤ ~0.33 USDT per video (3× floor). This is a design constraint, not an aspiration — cheapest capable Venice clip model, 3 clips, 10s each (≈30s finished), 720p max. If Phase 0 measures COGS above 0.33, drop resolution (720p→480p) before shortening the 30s length; if it still doesn't fit, only then cut clip count/duration. The price does not move.
 - The economics are a volume play: 1 USDT is an impulse buy, and Revenue Rocket counts orders and reviews, not margin.
 
 ## API shape (async job pattern — video gen takes minutes)
@@ -29,8 +29,8 @@ Unpaid POST returns HTTP 402 with x402 payment requirements (same pattern as Onc
 
 ## Pipeline stages (each a separate module, each testable via CLI)
 1. `research` — fetch and parse the input URL (okx.ai listing, GitHub repo, landing page) or use provided text. Extract: name, what it does, who it's for, key features, tone.
-2. `script` — generate the 15–30s script using the 3-beat structure: hook (0–5s), what-it-does with one concrete differentiator (5–20s), CTA (20–30s). Word budget ~60 spoken words max. Every beat earns its seconds; cut before padding.
-3. `visuals` — generate 3 clips via Venice (one per beat, 5–10s each per the model's supported durations). Style presets: `clean-tech`, `ugc`, `cinematic`.
+2. `script` — generate the ~30s script using the 3-beat structure: hook (0–10s), what-it-does with two or three concrete differentiators (10–20s), CTA (20–30s). Word budget ~90–100 spoken words (brisk but intelligible). Per-beat durations are 5s or 10s only (they map 1:1 to Venice clips); 30s = 10/10/10. Detail over padding.
+3. `visuals` — generate 3 clips via Venice (one per beat, 10s each; Venice supports 5s or 10s). Style presets: `clean-tech`, `ugc`, `cinematic`.
 4. `voice` — TTS voiceover from the script via Venice.
 5. `assemble` — ffmpeg: stitch clips + voiceover + burned subtitles into final MP4. Exact-duration blocks per beat.
 6. `deliver` — upload to storage, return public URL, mark job complete.
@@ -40,13 +40,13 @@ Unpaid POST returns HTTP 402 with x402 payment requirements (same pattern as Onc
 - SQLite for job store (no external DB dependency)
 - Hosting: Railway (prior art: SKINS runs there)
 - Payments: OKX Payment SDK / x402 exact scheme via okx/onchainos-skills patterns
-- Media: Venice API only. src/lib/venice.ts — thin client: quote, genClip, genVoice, poll. Video is async queue: POST /api/v1/video/queue → poll POST /api/v1/video/retrieve every 5s. Retrieve returns JSON {status: PROCESSING} while running, then the raw mp4 inline (Content-Type video/mp4) for standard models; Grok-Private variants instead return a one-time download_url at queue time — handle both shapes. Params: duration "5s"|"10s", resolution "480p"|"720p", aspect_ratio per model (check /models?type=video). ALWAYS call POST /api/v1/video/quote first and reject any job whose summed quotes exceed the media budget — hard programmatic COGS guarantee. Clip model: wan-2.5-preview-text-to-video to start (verified pricing signal: 10s@1080p quotes at $0.085, so 5s@720p is cheaper still). Voice: Venice TTS. Cleanup: delete_media_on_completion: true on retrieve.
+- Media: Venice API only. src/lib/venice.ts — thin client: quote, genClip, genVoice, poll. Video is async queue: POST /api/v1/video/queue → poll POST /api/v1/video/retrieve every 5s. Retrieve returns JSON {status: PROCESSING} while running, then the raw mp4 inline (Content-Type video/mp4) for standard models; Grok-Private variants instead return a one-time download_url at queue time — handle both shapes. Params: duration "5s"|"10s", resolution "480p"|"720p", aspect_ratio per model (check /models?type=video). ALWAYS call POST /api/v1/video/quote first and reject any job whose summed quotes exceed the media budget — hard programmatic COGS guarantee. Clip model: wan-2.5-preview-text-to-video to start; standard clip is 10s@720p (the 10s@1080p quote signal is $0.085, so 720p is below that — the quote gate confirms the 3-clip sum fits MEDIA_BUDGET before generating). Voice: Venice TTS. Cleanup: delete_media_on_completion: true on retrieve.
 - Assembly: ffmpeg in the container (per-beat exact-duration blocks + burned subtitles). No external assembly service.
 - Storage: Railway volume + public route, or Cloudflare R2 if needed
 
 ## Non-negotiables
 - Configure git identity BEFORE the first commit. No AI co-author attribution in any commit.
-- Small beats ambitious. v1 is ONE product at ONE price: 1 USDT → one 15–30s video. Three style presets, two aspect ratios. No tiers, no previews, no custom branding, no revisions endpoint, no A2A mode.
+- Small beats ambitious. v1 is ONE product at ONE price: 1 USDT → one ~30s video. Three style presets, two aspect ratios. No tiers, no previews, no custom branding, no revisions endpoint, no A2A mode.
 - Real on-chain action wins: every paid call must be a real x402 settlement on X Layer, verifiable.
 - Ship the listing for OKX internal review by Jul 12. Review approval is a hard eligibility gate — if it doesn't go live, the submission is invalid.
 - Every module runs standalone via CLI (`npm run research -- <url>`, etc.) so failures are isolated fast.
