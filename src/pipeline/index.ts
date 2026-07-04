@@ -12,15 +12,19 @@ import {
   markProcessing,
   recordStageOutput,
 } from '../db.js';
-import * as stages from './stages/mock.js';
+import type { StageFn } from '../types.js';
+import * as mock from './stages/mock.js';
+import { research } from './stages/research.js';
 
-const STAGE_FNS: Record<Stage, stages.StageFn> = {
-  research: stages.research,
-  script: stages.script,
-  visuals: stages.visuals,
-  voice: stages.voice,
-  assemble: stages.assemble,
-  deliver: stages.deliver,
+// Real stages replace mocks one at a time as Phase 2 lands. research is real;
+// the rest are still mock until the Venice/Anthropic integrations arrive.
+const STAGE_FNS: Record<Stage, StageFn> = {
+  research,
+  script: mock.script,
+  visuals: mock.visuals,
+  voice: mock.voice,
+  assemble: mock.assemble,
+  deliver: mock.deliver,
 };
 
 // Estimated wall-clock time for a fresh job, surfaced to clients as eta_seconds.

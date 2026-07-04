@@ -11,7 +11,8 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "smoke": "bash scripts/smoke.sh"
+    "smoke": "bash scripts/smoke.sh",
+    "research": "tsx src/cli/research.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",

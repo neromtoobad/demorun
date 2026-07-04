@@ -6,11 +6,9 @@
 // deliver.ts) with the real Venice + ffmpeg implementations. The stage
 // runner's contract stays identical, so the swap is isolated.
 
-import type { Job, Stage } from '../../types.js';
+import type { Job, Stage, StageFn } from '../../types.js';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-export type StageFn = (job: Job) => Promise<string>;
 
 function mockStage(stage: Stage, describe: (job: Job) => string): StageFn {
   return async (job: Job) => {
