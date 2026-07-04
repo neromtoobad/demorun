@@ -15,12 +15,14 @@ import {
 import type { StageFn } from '../types.js';
 import * as mock from './stages/mock.js';
 import { research } from './stages/research.js';
+import { script } from './stages/script.js';
 
-// Real stages replace mocks one at a time as Phase 2 lands. research is real;
-// the rest are still mock until the Venice/Anthropic integrations arrive.
+// Real stages replace mocks one at a time as Phase 2 lands. research + script
+// are real; visuals/voice/assemble/deliver are still mock until the Venice
+// integration arrives.
 const STAGE_FNS: Record<Stage, StageFn> = {
   research,
-  script: mock.script,
+  script,
   visuals: mock.visuals,
   voice: mock.voice,
   assemble: mock.assemble,

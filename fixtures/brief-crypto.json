@@ -1,0 +1,12 @@
+{
+  "name": "Onchain Data Explorer",
+  "one_liner": "One prompt, and your agent reads on-chain data across 180+ chains.",
+  "audience": "AI agents and their builders",
+  "features": [
+    "Query 180+ chains in plain language",
+    "Wallet, token, and DEX data from one endpoint",
+    "Pay-per-call with x402, no accounts"
+  ],
+  "tone": "technical, developer-facing",
+  "source": { "type": "okx", "url": "https://www.okx.ai/agents/2023" }
+}

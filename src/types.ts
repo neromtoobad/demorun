@@ -33,6 +33,22 @@ export interface ProductBrief {
   source: { type: 'okx' | 'github' | 'web' | 'text'; url?: string };
 }
 
+// The 3-beat script produced by the script stage from a ProductBrief.
+export type BeatRole = 'hook' | 'what-it-does' | 'cta';
+
+export interface ScriptBeat {
+  role: BeatRole;
+  voiceover: string; // the spoken line for this beat
+  scene_prompt: string; // concrete visual direction for the visuals stage
+  duration_s: number;
+}
+
+export interface VideoScript {
+  beats: ScriptBeat[];
+  total_duration_s: number;
+  word_count: number; // spoken words across all beats
+}
+
 // One row in the jobs table. stage_outputs is stored as JSON text in SQLite
 // and parsed to this shape when read.
 export interface Job {

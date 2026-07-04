@@ -12,7 +12,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "smoke": "bash scripts/smoke.sh",
-    "research": "tsx src/cli/research.ts"
+    "research": "tsx src/cli/research.ts",
+    "script": "tsx src/cli/script.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",

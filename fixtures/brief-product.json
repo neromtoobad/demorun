@@ -1,0 +1,12 @@
+{
+  "name": "Fernweh",
+  "one_liner": "Turn your camera roll into a printed travel journal.",
+  "audience": "travelers and creators",
+  "features": [
+    "Picks your best shots automatically",
+    "Maps every stop on the trip",
+    "Ships a hardcover book in a week"
+  ],
+  "tone": "warm, personal",
+  "source": { "type": "web", "url": "https://fernweh.example.com" }
+}
